@@ -1,6 +1,9 @@
 fs = require('fs')
 spawnSync = require('child_process').spawnSync
 
+endsWith = (s, suffix) ->
+  s.indexOf(suffix, s.length - suffix.length) isnt -1
+
 runSync = (command, options, next) ->
   {stderr, stdout} = runSyncRaw(command, options)
   if stderr?.length > 0
@@ -77,3 +80,10 @@ task('publish', 'Publish to npm and add git tags', () ->
   )
 )
 
+task('clean', 'Deletes .js and .map files', () ->
+  process.chdir(__dirname)
+  fs.readdir('./', (err, contents) ->
+    for file in contents when (endsWith(file, '.js') or endsWith(file, '.map'))
+      fs.unlink(file)
+  )
+)

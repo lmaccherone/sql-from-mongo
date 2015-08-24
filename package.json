@@ -5,7 +5,8 @@
   "main": "./sql-from-mongo",
   "scripts": {
     "test": "nodeunit",
-    "prepublish": "cake compile"
+    "prepublish": "cake compile",
+    "postpublish": "cake clean"
   },
   "keywords": [
     "Azure",
