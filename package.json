@@ -1,0 +1,27 @@
+{
+  "name": "sql-from-mongo",
+  "version": "0.1.0",
+  "description": "Simple conversion from MongoDB-like syntax to SQL WHERE clauses",
+  "main": "./sql-from-mongo",
+  "scripts": {
+    "test": "nodeunit",
+    "prepublish": "cake compile"
+  },
+  "keywords": [
+    "Azure",
+    "DocumentDB",
+    "SQL",
+    "MongoDB"
+  ],
+  "author": "Larry Maccherone",
+  "license": "Free for evaluation and non-comercial use. Contact for other licensing.",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/lmaccherone/sql-from-mongo.git"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.9.3",
+    "nodeunit": "^0.9.1"
+  },
+  "dependencies": {}
+}
