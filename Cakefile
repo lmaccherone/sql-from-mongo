@@ -31,7 +31,7 @@ task('compile', 'Compile CoffeeScript source files to JavaScript', () ->
   )
 )
 
-task('test', 'UNIMPLEMENTED - Run the CoffeeScript test suite with nodeunit', () ->
+task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   {reporters} = require('nodeunit')
   process.chdir(__dirname)
   reporters.default.run(['test'], undefined, (failure) ->
