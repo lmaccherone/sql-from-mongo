@@ -142,7 +142,7 @@ parseSingleKeyValuePair = (key, value, collectionName) ->
         else
           return "(" + parts.join(" AND ") + ")"
       else
-        return "#{prefix + key} = #{value}"
+        return "#{prefix + key} = #{JSON.stringify(value)}"
 
 sqlFromMongo = (mongoObject, collectionName) ->
   keys = []

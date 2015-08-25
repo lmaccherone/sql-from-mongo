@@ -1,34 +1,42 @@
 {sqlFromMongo} = require('../')
 
 exports.sqlFromMongoTest =
+
   testSimple: (test) ->
     mongoObject = {a: 1}
     expectedSQLString = "a = 1"
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
     expectedSQLString = "col.a = 1"
     test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
+
+    mongoObject = {a: "hello"}
+    expectedSQLString = 'a = "hello"'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
+    expectedSQLString = 'col.a = "hello"'
+    test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
+
     test.done()
 
   testComplicated: (test) ->
-    mongoObject = {a: 1, $and:[{b:2}, c: {$gt: 2, $lt: 10}, $nor:[{d: 10}, {e: 20}, {$not: {f: 30}}]]}
-    expectedSQLString = "(a = 1 AND (b = 2 AND ((c > 2 AND c < 10) AND NOT (d = 10 OR e = 20 OR NOT (f = 30)))))"
+    mongoObject = {a: 1, $and:[{b:2}, c: {$gt: 2, $lt: 10}, $nor:[{d: "a"}, {e: 20}, {$not: {f: 30}}]]}
+    expectedSQLString = '(a = 1 AND (b = 2 AND ((c > 2 AND c < 10) AND NOT (d = "a" OR e = 20 OR NOT (f = 30)))))'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
-    expectedSQLString = "(col.a = 1 AND (col.b = 2 AND ((col.c > 2 AND col.c < 10) AND NOT (col.d = 10 OR col.e = 20 OR NOT (col.f = 30)))))"
+    expectedSQLString = '(col.a = 1 AND (col.b = 2 AND ((col.c > 2 AND col.c < 10) AND NOT (col.d = "a" OR col.e = 20 OR NOT (col.f = 30)))))'
     test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
 
     test.done()
 
   testMultiple: (test) ->
-    mongoObject = {a: 1, b: 2}
-    expectedSQLString = "(a = 1 AND b = 2)"
+    mongoObject = {a: 1, b: "hello"}
+    expectedSQLString = '(a = 1 AND b = "hello")'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
-    expectedSQLString = "(col.a = 1 AND col.b = 2)"
+    expectedSQLString = '(col.a = 1 AND col.b = "hello")'
     test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
 
-    mongoObject = {a: 1, b: 2, c: 3}
-    expectedSQLString = "(a = 1 AND b = 2 AND c = 3)"
+    mongoObject = {a: 1, b: "hello", c: 3}
+    expectedSQLString = '(a = 1 AND b = "hello" AND c = 3)'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
-    expectedSQLString = "(col.a = 1 AND col.b = 2 AND col.c = 3)"
+    expectedSQLString = '(col.a = 1 AND col.b = "hello" AND col.c = 3)'
     test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
 
     test.done()
@@ -280,4 +288,10 @@ exports.sqlFromMongoTest =
     expectedSQLString = '(ST_DISTANCE(pointExpression, {"type":"Point","coordinates":[10.2,-6.7]}) <= 40 AND ST_DISTANCE(pointExpression, {"type":"Point","coordinates":[10.2,-6.7]}) >= 20)'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
 
+    test.done()
+
+  testLongKey: (test) ->
+    mongoObject = {'CONCAT(food.id, " ", food.name)': "1234 Rice"}
+    expectedSQLString = 'CONCAT(food.id, " ", food.name) = "1234 Rice"'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
     test.done()
