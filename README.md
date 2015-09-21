@@ -139,5 +139,6 @@ which sets query to:
         
  ## Version history
  
+ * 0.1.2 - 2015-09-20 - Made it all one function so it can be mixed in to a documentdb-utils sproc
  * 0.1.1 - 2015-08-25 - Updated Docs. Fixed bug that was not allowing strings as scalars.
  * 0.1.0 - 2015-08-24 - Initial version
