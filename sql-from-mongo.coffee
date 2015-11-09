@@ -1,3 +1,36 @@
+# TODO: Do a proper job of escaping/transforming rather than just calling JSON.stringify
+###
+From: https://github.com/felixge/node-mysql#escaping-query-values
+
+Numbers are left untouched
+
+Booleans are converted to true / false
+
+Date objects are converted to 'YYYY-mm-dd HH:ii:ss' strings
+
+Buffers are converted to hex strings, e.g. X'0fa5'
+
+Strings are safely escaped
+
+Arrays are turned into list, e.g. ['a', 'b'] turns into 'a', 'b'
+
+Nested arrays are turned into grouped lists (for bulk inserts), e.g. [['a', 'b'], ['c', 'd']] turns into ('a', 'b'), ('c', 'd')
+
+Objects are turned into key = 'val' pairs for each enumerable property on the object. If the property's value is a function, it is skipped; if the property's value is an object, toString() is called on it and the returned value is used.
+
+undefined / null are converted to NULL
+
+NaN / Infinity are left as-is. MySQL does not support these, and trying to insert them as values will trigger MySQL errors until they implement support.
+
+That said, I think I'd leave Dates with JSON.stringify since it results in an ISO-8601 string on node.js.
+Same thing with 0x100 hex, which is returned as 256 from JSON.stringify
+Converting undefined to null might be the most valuable in the list above.
+I'd be inclined to convert NaN and Infinity to null, since DocumentDB only supports true JSON and these are not part of the spec.
+Maybe some smarter conversion of arrays, nested arrays would be valuable. I already do this for IN and ARRAY_CONTAINS, but it might be
+nice if that were generic.
+Object seem to be handled properly by sql-from-mongo
+###
+
 sqlFromMongo = (mongoObject, collectionName) ->
   JOIN_LOOKUP = {$and: " AND ", $or: " OR ", $nor: " OR "}
 
@@ -41,17 +74,17 @@ sqlFromMongo = (mongoObject, collectionName) ->
           for valueKey, valueValue of value
             switch valueKey
               when "$lt"
-                parts.push(s + "< #{valueValue}")
+                parts.push(s + "< #{JSON.stringify(valueValue)}")
               when "$gt"
-                parts.push(s + "> #{valueValue}")
+                parts.push(s + "> #{JSON.stringify(valueValue)}")
               when "$lte"
-                parts.push(s + "<= #{valueValue}")
+                parts.push(s + "<= #{JSON.stringify(valueValue)}")
               when "$gte"
-                parts.push(s + ">= #{valueValue}")
+                parts.push(s + ">= #{JSON.stringify(valueValue)}")
               when "$ne"
-                parts.push(s + "<> #{valueValue}")
+                parts.push(s + "<> #{JSON.stringify(valueValue)}")
               when "$eq"
-                parts.push(s + "= #{valueValue}")
+                parts.push(s + "= #{JSON.stringify(valueValue)}")
               when "$in"
                 if type(valueValue) is 'array'
                   if valueValue.length > 100

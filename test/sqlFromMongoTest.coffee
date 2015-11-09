@@ -54,6 +54,10 @@ exports.sqlFromMongoTest =
     expectedSQLString = "(col.price < 9.95 AND col.price > 0.77)"
     test.equal(sqlFromMongo(mongoObject, "col"), expectedSQLString)
 
+    mongoObject = {date: {$gt: "2015-01-01", $lt: "2015-03-01"}}
+    expectedSQLString = '(date > "2015-01-01" AND date < "2015-03-01")'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
+
     test.done()
 
   testAnd: (test) ->
@@ -293,5 +297,11 @@ exports.sqlFromMongoTest =
   testLongKey: (test) ->
     mongoObject = {'CONCAT(food.id, " ", food.name)': "1234 Rice"}
     expectedSQLString = 'CONCAT(food.id, " ", food.name) = "1234 Rice"'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
+    test.done()
+
+  testUnderscoreKey: (test) ->
+    mongoObject = {"_Org": "1234"}
+    expectedSQLString = '_Org = "1234"'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
     test.done()
