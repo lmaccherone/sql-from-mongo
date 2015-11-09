@@ -137,7 +137,14 @@ which sets query to:
         console.log(sqlFromMongo({'CONCAT(food.id, " ", food.name)': "1234 Rice"}))
         # CONCAT(food.id, " ", food.name) = "1234 Rice"
         
- ## Version history
+## Immune to SQL Injection
+
+Since all scalars are escaped with JSON.strinigify(), the SQL produced by sql-from-mongo is immune from SQL Injection
+attacks. It's hard to prove a negative, but it has been tested with all data types (string, number, array, true/false,
+undefined, NaN, Infinity, Date, Buffer, Uint8Array and we don't see any way for an injection to get through. 
+Worst case, it might produce invalid SQL for DocumentDB with certain data types (undefined, for example).
+        
+## Version history
  
  * 0.1.3 - 2015-01-09 - Properly escape (via JSON.strinigify()) string values for inequalities
  * 0.1.2 - 2015-09-20 - Made it all one function so it can be mixed in to a documentdb-utils sproc
