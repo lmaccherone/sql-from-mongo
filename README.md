@@ -18,7 +18,8 @@ the sqlFromMongo function takes three parameters:
 1. A JavaScript object with your MongoDB-like query
 2. (optional) A string containing the collection/table name to use as a prefix for any 
    field/column names. Note, you can omit this and fully qualify your variables yourself.
-3. (optional) A list of fields as an array of strings. Note, if you provide this, then 
+3. (optional) A list of fields as an array of strings. Note, if you provide this, then it will respond with a full
+   query (i.e. "SELECT __ FROM __ WHERE"), not just a WHERE clause.
 
 Examples:
    
