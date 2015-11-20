@@ -13,11 +13,12 @@ This implements all but a few of MongoDB's query operators and adds a few that w
 
 ## Usage
 
-the sqlFromMongo function takes two parameters:
+the sqlFromMongo function takes three parameters:
 
 1. A JavaScript object with your MongoDB-like query
 2. (optional) A string containing the collection/table name to use as a prefix for any 
    field/column names. Note, you can omit this and fully qualify your variables yourself.
+3. (optional) A list of fields as an array of strings. Note, if you provide this, then 
 
 Examples:
    
@@ -35,13 +36,27 @@ Examples:
     console.log(sqlFromMongo(o, "z"))
     # (z.a = 1 AND (z.b = 2 AND ((z.c > 2 AND z.c < 10) AND NOT (z.d = 10 OR z.e = 20 OR NOT (z.f = 30)))))
     
-You would include this in the where clause of a full SQL query like this:
+You could include the above output in the where clause of a full SQL query like this:
 
     query = "SELECT * FROM c WHERE #{sqlFromMongo({State: {$startsWith: "In "}}, 'c')}"
     
 which sets query to:
 
     SELECT * FROM c WHERE STARTSWITH(c.State, "In ")
+    
+More conveniently, though, you can provide a list of fields or '*' as the third parameter and it will build the entire
+SELECT statement for you. For example:
+
+    o = {a: 1}
+    console.log(sqlFromMongo(o, "c", "*"))
+    # SELECT * from c WHERE c.a = 1
+    
+    o = {a: 1}
+    console.log(sqlFromMongo(o, "c", ["a", "b"]))
+    # SELECT c.a, c.b from c WHERE c.a = 1
+    
+There is currently no support for things like `SELECT 1...`. If you need that then omit the fields parameter and build
+the full query using sqlFromMongo only for the WHERE clause.
     
 ## Supported operators (from [here](http://docs.mongodb.org/manual/reference/operator/query/))
 
@@ -142,11 +157,12 @@ which sets query to:
 Since all scalars are escaped with JSON.strinigify(), the SQL produced by sql-from-mongo is immune from SQL Injection
 attacks. It's hard to prove a negative, but it has been tested with all data types (string, number, array, true/false,
 undefined, NaN, Infinity, Date, Buffer, Uint8Array and we don't see any way for an injection to get through. 
-Worst case, it might produce invalid SQL for DocumentDB with certain data types (undefined, for example).
+Worst case, it can produce invalid SQL for DocumentDB with certain data types (undefined, for example).
         
 ## Version history
  
- * 0.1.3 - 2015-01-09 - Properly escape (via JSON.strinigify()) string values for inequalities
+ * 0.2.0 - 2015-11-19 - Added ability to generate full SQL (including SELECT and FROM clauses)
+ * 0.1.3 - 2015-10-09 - Properly escape (via JSON.strinigify()) string values for inequalities
  * 0.1.2 - 2015-09-20 - Made it all one function so it can be mixed in to a documentdb-utils sproc
  * 0.1.1 - 2015-08-25 - Updated Docs. Fixed bug that was not allowing strings as scalars.
  * 0.1.0 - 2015-08-24 - Initial version

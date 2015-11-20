@@ -305,3 +305,18 @@ exports.sqlFromMongoTest =
     expectedSQLString = '_Org = "1234"'
     test.equal(sqlFromMongo(mongoObject), expectedSQLString)
     test.done()
+
+  testFields: (test) ->
+    mongoObject = {"a": 1}
+    expectedSQLString = 'SELECT * FROM c WHERE c.a = 1'
+    test.equal(sqlFromMongo(mongoObject, 'c', '*'), expectedSQLString)
+
+    mongoObject = {"a": 1, b: "hello"}
+    expectedSQLString = 'SELECT * FROM c WHERE (c.a = 1 AND c.b = "hello")'
+    test.equal(sqlFromMongo(mongoObject, 'c', ['*']), expectedSQLString)
+
+    mongoObject = {"a": 1, b: "hello"}
+    expectedSQLString = 'SELECT c.a, c.b FROM c WHERE (c.a = 1 AND c.b = "hello")'
+    test.equal(sqlFromMongo(mongoObject, 'c', ['a', 'b']), expectedSQLString)
+
+    test.done()

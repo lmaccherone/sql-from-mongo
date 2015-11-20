@@ -31,7 +31,10 @@ nice if that were generic.
 Object seem to be handled properly by sql-from-mongo
 ###
 
-sqlFromMongo = (mongoObject, collectionName) ->
+sqlFromMongo = (mongoObject, collectionName, fields) ->
+  if fields? and not collectionName?
+    throw new Error("Must provide a collectionName if fields is provided.")
+
   JOIN_LOOKUP = {$and: " AND ", $or: " OR ", $nor: " OR "}
 
   type = do ->  # from http://arcturo.github.com/library/coffeescript/07_the_bad_parts.html
@@ -44,10 +47,6 @@ sqlFromMongo = (mongoObject, collectionName) ->
       classToType[strType] or "object"
 
   parseSingleKeyValuePair = (key, value, collectionName) ->
-    if collectionName? and collectionName.length > 0
-      prefix = collectionName + "."
-    else
-      prefix = ""
     switch key
       when "$not"
         s = sqlFromMongo(value, collectionName)
@@ -178,17 +177,34 @@ sqlFromMongo = (mongoObject, collectionName) ->
         else
           return "#{prefix + key} = #{JSON.stringify(value)}"
 
+  if collectionName? and collectionName.length > 0
+    prefix = collectionName + "."
+  else
+    prefix = ""
+
   keys = []
   for key, value of mongoObject
     keys.push(key)
   if keys.length is 1
-    return parseSingleKeyValuePair(keys[0], mongoObject[keys[0]], collectionName)
+    parts = [parseSingleKeyValuePair(keys[0], mongoObject[keys[0]], collectionName)]
   else
     parts = []
     for key, value of mongoObject
       subObject = {}
       subObject[key] = value
       parts.push(sqlFromMongo(subObject, collectionName))
-    return "(" + parts.join(" AND ") + ")"
+
+  if parts.length is 1
+    sql = parts[0]
+  else
+    sql = "(" + parts.join(" AND ") + ")"
+  if fields?
+    if fields is '*' or (fields[0] is '*') or fields is true
+      fieldsString = '*'
+    else
+      fieldStringParts = (prefix + field for field in fields)
+      fieldsString = fieldStringParts.join(", ")
+    sql = "SELECT #{fieldsString} FROM #{collectionName} WHERE " + sql
+  return sql
 
 exports.sqlFromMongo = sqlFromMongo
