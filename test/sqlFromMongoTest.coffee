@@ -320,3 +320,9 @@ exports.sqlFromMongoTest =
     test.equal(sqlFromMongo(mongoObject, 'c', ['a', 'b']), expectedSQLString)
 
     test.done()
+
+  testSQLAlready: (test) ->
+    sqlString = 'SELECT * FROM c WHERE c.a = 1'
+    test.equal(sqlFromMongo(sqlString), sqlString)
+
+    test.done()

@@ -1,6 +1,6 @@
 {
   "name": "sql-from-mongo",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Simple conversion from MongoDB-like syntax to SQL WHERE clauses",
   "main": "./sql-from-mongo",
   "scripts": {

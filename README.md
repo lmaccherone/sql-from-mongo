@@ -162,6 +162,7 @@ Worst case, it can produce invalid SQL for DocumentDB with certain data types (u
         
 ## Version history
  
+ * 0.2.1 - 2016-05-27 - Just returns the input if it's already SQL
  * 0.2.0 - 2015-11-19 - Added ability to generate full SQL (including SELECT and FROM clauses)
  * 0.1.3 - 2015-10-09 - Properly escape (via JSON.strinigify()) string values for inequalities
  * 0.1.2 - 2015-09-20 - Made it all one function so it can be mixed in to a documentdb-utils sproc
