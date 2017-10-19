@@ -88,6 +88,10 @@ the full query using sqlFromMongo only for the WHERE clause.
   * $nin
   * $size test array length
   * $exists `{field: {$exists: <boolean>}}`. If boolean is false, then NOT $exists
+  * $elemMatch Note that MongoDB syntax support is limited to exact object matching, and
+    does not include dot-notation key paths, because DocumentDB only supports exact matching,
+    e.g. `{a: {$elemMatch: {b: "hello"}}}` will work but`{a: {$elemMatch: {b: {$gt: 3}}}}` will
+    not, and neither will `{a: {$elemMatch: {"b.c": "hello"}}}`
 
 ### Geo:
 
@@ -129,8 +133,6 @@ the full query using sqlFromMongo only for the WHERE clause.
   * $all Easy with UDF so maybe later
   * $regex Easy with UDF so maybe later. In the mean time, maybe $startsWith, $endsWith, or 
     $contains will serve.
-  * $elemMatch Never used this in MongoDB so not on my must have list. Implementation similar
-    to $all but think $any
   * $mod Could probably do this without UDF but never used it so not high on my list although
     it could be useful for sampling
     

@@ -13,6 +13,11 @@ sqlFromMongo = (mongoQueryObject, collectionName, fields) ->
       strType = Object::toString.call(obj)
       classToType[strType] or "object"
 
+  containsDollars = (obj) ->
+    Object.keys(obj).filter((key) ->
+      key[0] == '$' or typeof obj[key] == 'object' and containsDollars(obj[key])
+    ).length > 0
+
   if type(mongoQueryObject) is 'string' and mongoQueryObject.toUpperCase().indexOf('SELECT') is 0 # It's already SQL
     return mongoQueryObject
 
@@ -54,6 +59,10 @@ sqlFromMongo = (mongoQueryObject, collectionName, fields) ->
                 parts.push(s + "<> #{JSON.stringify(valueValue)}")
               when "$eq"
                 parts.push(s + "= #{JSON.stringify(valueValue)}")
+              when "$elemMatch"
+                if containsDollars(valueValue)
+                  throw new Error("DocumentDB can only match explicit values of array objects")
+                return "ARRAY_CONTAINS(#{prefix + key}, #{JSON.stringify(valueValue)}, true)"
               when "$in"
                 if type(valueValue) is 'array'
                   if valueValue.length > 100
