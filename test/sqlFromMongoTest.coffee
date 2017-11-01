@@ -321,6 +321,24 @@ exports.sqlFromMongoTest =
 
     test.done()
 
+  testElemMatch: (test) ->
+    mongoObject = {"a": { $elemMatch: {"b": "hello"}}}
+    expectedSQLString = 'ARRAY_CONTAINS(a, {"b":"hello"}, true)'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
+    expectedSQLString = 'ARRAY_CONTAINS(c.a, {"b":"hello"}, true)'
+    test.equal(sqlFromMongo(mongoObject, "c"), expectedSQLString)
+
+    mongoObject = {"a": { $elemMatch: {"b": {"x": "y"}}}}
+    expectedSQLString = 'ARRAY_CONTAINS(a, {"b":{"x":"y"}}, true)'
+    test.equal(sqlFromMongo(mongoObject), expectedSQLString)
+
+    mongoObject = {"a": { $elemMatch: {"b": {$gt: 1}}}}
+    test.throws(() -> sqlFromMongo(mongoObject))
+    mongoObject = {"a": { $elemMatch: {"b": {"c": {$gt: 1}}}}}
+    test.throws(() -> sqlFromMongo(mongoObject))
+    
+    test.done()
+
   testSQLAlready: (test) ->
     sqlString = 'SELECT * FROM c WHERE c.a = 1'
     test.equal(sqlFromMongo(sqlString), sqlString)
